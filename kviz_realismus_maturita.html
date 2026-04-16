@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kvíz – Kritický realismus, naturalismus, májovci, ruchovci a lumírovci</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1613;
+    --ink-soft: #3d342c;
+    --paper: #f4ede0;
+    --paper-dark: #e8dcc4;
+    --accent: #8b2c1e;
+    --accent-soft: #b54a3a;
+    --gold: #a88935;
+    --green: #3d5a3d;
+    --muted: #7a6f60;
+    --line: #c9b993;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 19px;
+    line-height: 1.6;
+    color: var(--ink);
+    background: var(--paper);
+    background-image:
+      radial-gradient(at 20% 10%, rgba(168, 137, 53, 0.08) 0, transparent 50%),
+      radial-gradient(at 80% 90%, rgba(139, 44, 30, 0.06) 0, transparent 50%);
+    min-height: 100vh;
+    padding: 40px 20px;
+  }
+
+  .container {
+    max-width: 820px;
+    margin: 0 auto;
+  }
+
+  /* HEADER */
+  header {
+    text-align: center;
+    margin-bottom: 50px;
+    padding-bottom: 40px;
+    border-bottom: 2px double var(--line);
+    position: relative;
+  }
+
+  header::before,
+  header::after {
+    content: "❦";
+    color: var(--accent);
+    font-size: 20px;
+    position: absolute;
+    bottom: -12px;
+    background: var(--paper);
+    padding: 0 14px;
+  }
+  header::before { left: 30%; }
+  header::after { right: 30%; display: none; }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 18px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: clamp(28px, 4.5vw, 44px);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin-bottom: 14px;
+    color: var(--ink);
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .subtitle {
+    font-style: italic;
+    color: var(--muted);
+    font-size: 18px;
+  }
+
+  /* PROGRESS */
+  .progress-bar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--paper);
+    padding: 16px 0;
+    margin-bottom: 30px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .progress-track {
+    flex: 1;
+    height: 3px;
+    background: var(--paper-dark);
+    margin: 0 20px;
+    position: relative;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* QUESTION */
+  .question {
+    background: rgba(255, 252, 245, 0.6);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    padding: 32px 34px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 2px rgba(26, 22, 19, 0.04);
+    position: relative;
+  }
+
+  .q-number {
+    position: absolute;
+    top: -14px;
+    left: 28px;
+    background: var(--paper);
+    padding: 0 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+
+  .q-text {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    line-height: 1.35;
+    font-weight: 600;
+    margin-bottom: 22px;
+    color: var(--ink);
+  }
+
+  /* OPTIONS */
+  .options {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 18px;
+    border: 1px solid transparent;
+    background: transparent;
+    border-radius: 2px;
+    cursor: pointer;
+    text-align: left;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    line-height: 1.45;
+    color: var(--ink);
+    transition: all 0.2s ease;
+    width: 100%;
+    position: relative;
+  }
+
+  .option:hover:not(:disabled) {
+    background: var(--paper-dark);
+    border-color: var(--line);
+  }
+
+  .option-letter {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border: 1.5px solid var(--ink-soft);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    transition: all 0.2s;
+  }
+
+  .option:hover:not(:disabled) .option-letter {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .option:disabled {
+    cursor: default;
+  }
+
+  /* CORRECT / INCORRECT */
+  .option.correct {
+    background: rgba(61, 90, 61, 0.08);
+    border-color: var(--green);
+  }
+  .option.correct .option-letter {
+    background: var(--green);
+    color: var(--paper);
+    border-color: var(--green);
+  }
+
+  .option.incorrect {
+    background: rgba(139, 44, 30, 0.08);
+    border-color: var(--accent);
+  }
+  .option.incorrect .option-letter {
+    background: var(--accent);
+    color: var(--paper);
+    border-color: var(--accent);
+  }
+
+  .option.dimmed {
+    opacity: 0.5;
+  }
+
+  /* EXPLANATION */
+  .explanation {
+    margin-top: 22px;
+    padding: 20px 22px;
+    background: var(--paper-dark);
+    border-left: 3px solid var(--gold);
+    border-radius: 2px;
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    display: none;
+    animation: fadeIn 0.4s ease;
+  }
+
+  .explanation.show { display: block; }
+
+  .explanation-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+
+  .explanation p { margin-bottom: 8px; }
+  .explanation p:last-child { margin-bottom: 0; }
+
+  .explanation strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .verdict {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    font-style: italic;
+  }
+  .verdict.right { color: var(--green); }
+  .verdict.wrong { color: var(--accent); }
+
+  /* RESULT */
+  .result {
+    display: none;
+    text-align: center;
+    padding: 50px 30px;
+    margin-top: 40px;
+    border: 2px double var(--line);
+    background: rgba(255, 252, 245, 0.7);
+    animation: fadeIn 0.6s ease;
+  }
+
+  .result.show { display: block; }
+
+  .result-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .result-score {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(48px, 10vw, 96px);
+    font-weight: 700;
+    line-height: 1;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+
+  .result-score em {
+    font-weight: 400;
+    font-style: italic;
+    color: var(--muted);
+    font-size: 0.6em;
+  }
+
+  .result-label {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 24px;
+    color: var(--ink-soft);
+    margin-bottom: 30px;
+  }
+
+  .restart-btn {
+    display: inline-block;
+    padding: 14px 36px;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .restart-btn:hover {
+    background: var(--accent);
+  }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 30px;
+    border-top: 1px solid var(--line);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 640px) {
+    body { padding: 20px 12px; font-size: 17px; }
+    .question { padding: 26px 22px; }
+    .q-text { font-size: 20px; }
+    .option { font-size: 17px; padding: 12px 14px; }
+    .explanation { padding: 18px; font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="eyebrow">Maturitní příprava · Česká literatura</div>
+    <h1>Kritický realismus &amp; naturalismus<br><em>májovci · ruchovci · lumírovci</em></h1>
+    <div class="subtitle">18 otázek · vyber odpověď a hned zjisti, proč je správná</div>
+  </header>
+
+  <div class="progress-bar">
+    <span id="progress-text">0 / 18</span>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    <span id="score-text">Správně: 0</span>
+  </div>
+
+  <div id="quiz"></div>
+
+  <div class="result" id="result">
+    <div class="result-eyebrow">Výsledek</div>
+    <div class="result-score"><span id="final-score">0</span><em> / 18</em></div>
+    <div class="result-label" id="final-label">—</div>
+    <button class="restart-btn" onclick="restart()">Zkusit znovu</button>
+  </div>
+
+  <footer>❦ Maturitní kvíz · 19. století · česká i světová literatura ❦</footer>
+
+</div>
+
+<script>
+const questions = [
+  {
+    q: "Který filozofický směr zásadně ovlivnil realistickou literaturu 2. poloviny 19. století?",
+    options: ["existencialismus", "romantismus", "pozitivismus", "strukturalismus"],
+    correct: 2,
+    explanations: [
+      "Existencialismus vznikl až ve 20. století (Sartre, Camus) – s realismem 19. století nesouvisí.",
+      "Romantismus realismu předcházel, realisté se proti jeho idealizaci a citovému patosu vymezovali.",
+      "<strong>Správně.</strong> Pozitivismus (Auguste Comte) klade důraz na <strong>fakta a ověřitelné poznání</strong> – přesně ten přístup, který realisté aplikovali na literaturu (objektivní zobrazení skutečnosti).",
+      "Strukturalismus je literárněvědný směr 20. století (Pražský lingvistický kroužek) – s realismem 19. století nemá souvislost."
+    ]
+  },
+  {
+    q: "Kdo je považován za zakladatele pozitivismu?",
+    options: ["Immanuel Kant", "Auguste Comte", "Friedrich Nietzsche", "Georg Wilhelm Friedrich Hegel"],
+    correct: 1,
+    explanations: [
+      "Kant je představitel německé klasické filozofie (osvícenství, kriticismus) – žil o generaci dříve.",
+      "<strong>Správně.</strong> Francouzský filozof <strong>Auguste Comte</strong> je zakladatelem pozitivismu – směru zdůrazňujícího ověřitelné poznání a faktickou metodu. Jeho myšlení přímo formovalo realistickou poetiku.",
+      "Nietzsche je představitel iracionalismu a voluntarismu – svým kritickým postojem k pozitivismu je spíše jeho protipólem.",
+      "Hegel je autor dialektického idealismu – Comte se vůči idealistické filozofii naopak vymezoval."
+    ]
+  },
+  {
+    q: "Který z následujících znaků NEPATŘÍ k realismu?",
+    options: ["typizace hrdiny", "objektivní zobrazení skutečnosti", "autor jako nezúčastněný pozorovatel", "idealizace venkovského života"],
+    correct: 3,
+    explanations: [
+      "Typizace patří ke klíčovým znakům realismu – hrdina je reprezentantem určité společenské vrstvy.",
+      "Objektivita je základním rysem – realista zobrazuje skutečnost pravdivě, bez subjektivního zkreslení.",
+      "Ano, realistický autor stojí „nad\" příběhem a nezasahuje do něj emotivními komentáři.",
+      "<strong>Správně (tedy NEpatří).</strong> Idealizace venkova je rys <strong>romantismu a obrozenecké literatury</strong>. Realismus naopak zobrazuje venkov pravdivě, včetně sociálních problémů, chamtivosti či konfliktů."
+    ]
+  },
+  {
+    q: "Čím se naturalismus liší od realismu?",
+    options: [
+      "zaměřuje se výhradně na šlechtu",
+      "chápe člověka jako produkt dědičnosti, pudů a prostředí (determinismus)",
+      "vrací se k romantické idealizaci",
+      "používá výhradně veršovanou formu"
+    ],
+    correct: 1,
+    explanations: [
+      "Naopak – naturalismus se zaměřuje především na nižší vrstvy, chudinu, dělnictvo a stinné stránky života.",
+      "<strong>Správně.</strong> Klíčovým pojmem naturalismu je <strong>determinismus</strong>: člověk není svobodný, je předurčen dědičností, pudy a sociálním prostředím. Dílo má být jakousi „vědeckou studií\" lidského chování.",
+      "Naopak – naturalismus je <strong>krajní formou realismu</strong>, od romantické idealizace se vzdaluje ještě víc než realismus.",
+      "Naturalismus se projevuje především v <strong>próze</strong> (Zola) a dramatu – veršovaná forma s ním nesouvisí."
+    ]
+  },
+  {
+    q: "Kdo je zakladatelem naturalismu a autorem románového cyklu Rougon-Macquartové?",
+    options: ["Gustave Flaubert", "Honoré de Balzac", "Émile Zola", "Guy de Maupassant"],
+    correct: 2,
+    explanations: [
+      "Flaubert je autor Paní Bovaryové – psychologického realistického románu, nikoli naturalistického cyklu.",
+      "Balzac napsal Lidskou komedii (realismus) – naturalismu předcházel.",
+      "<strong>Správně.</strong> <strong>Émile Zola</strong> je zakladatelem naturalismu a autorem ~20dílného cyklu <em>Rougon-Macquartové</em>, který na osudech dvou rodů ukazuje vliv dědičnosti a prostředí. Známá díla: Nana, Germinal, Zabiják.",
+      "Maupassant je mistr povídky (Kulička, Miláček), žák Flauberta – k naturalismu měl blízko, ale cyklus Rougon-Macquartové nenapsal."
+    ]
+  },
+  {
+    q: "Autorem Lidské komedie, cyklu přibližně 97 románů zachycujících francouzskou společnost, je:",
+    options: ["Stendhal", "Honoré de Balzac", "Victor Hugo", "Émile Zola"],
+    correct: 1,
+    explanations: [
+      "Stendhal je autor Červeného a černého – jednotlivého psychologického románu, nikoli rozsáhlého cyklu.",
+      "<strong>Správně.</strong> <strong>Honoré de Balzac</strong> je autorem <em>Lidské komedie</em> – monumentálního projektu ~97 románů, které měly podat úplný obraz francouzské společnosti. Patří sem Otec Goriot, Ztracené iluze.",
+      "Victor Hugo je romantik (Bídníci, Chrám Matky Boží v Paříži) – k realismu již patří jen okrajově a cyklus Lidská komedie nenapsal.",
+      "Zola napsal cyklus Rougon-Macquartové (naturalismus), nikoli Lidskou komedii."
+    ]
+  },
+  {
+    q: "Kdo napsal psychologický román Paní Bovaryová?",
+    options: ["Stendhal", "Émile Zola", "Guy de Maupassant", "Gustave Flaubert"],
+    correct: 3,
+    explanations: [
+      "Stendhal napsal Červený a černý – také psychologický román, ale Paní Bovaryová je Flaubertova.",
+      "Zola je naturalista – Paní Bovaryová do tohoto cyklu nepatří.",
+      "Maupassant byl Flaubertovým žákem a přítelem, ale autorem Paní Bovaryové je Flaubert.",
+      "<strong>Správně.</strong> <strong>Gustave Flaubert</strong> napsal <em>Paní Bovaryovou</em> – vrcholný psychologický román o nenaplněných touhách a romantických iluzích ženy z maloměsta. Dílo mělo i soudní dohru pro údajné pohoršení mravů."
+    ]
+  },
+  {
+    q: "Který ruský autor napsal romány Zločin a trest, Bratři Karamazovi a Idiot?",
+    options: ["L. N. Tolstoj", "F. M. Dostojevskij", "I. S. Turgeněv", "A. P. Čechov"],
+    correct: 1,
+    explanations: [
+      "Tolstoj je autor Vojny a míru a Anny Kareninové – píše spíše velké společenské epopeje než intenzivní psychologickou prózu.",
+      "<strong>Správně.</strong> <strong>F. M. Dostojevskij</strong> je mistrem <strong>psychologické prózy</strong> – jeho romány pronikají do krajních stavů lidské duše, viny, víry a morálního konfliktu. Zločin a trest, Bratři Karamazovi i Idiot patří k vrcholům světové literatury.",
+      "Turgeněv je autor Lovcových zápisků a Otců a dětí – píše realistickou, spíše lyrickou prózu.",
+      "Čechov je mistrem povídky a dramatu (Tři sestry, Višňový sad), nikoli velkých románů."
+    ]
+  },
+  {
+    q: "Almanach Máj (1858), podle kterého se nazývá generace májovců, navazoval na odkaz:",
+    options: ["Josefa Jungmanna", "Karla Hynka Máchy", "Františka Palackého", "Boženy Němcové"],
+    correct: 1,
+    explanations: [
+      "Jungmann je představitel národního obrození, od jehož patetického vlastenectví se májovci naopak odkláněli.",
+      "<strong>Správně.</strong> Almanach <em>Máj</em> nesl jméno na počest <strong>K. H. Máchy</strong> a jeho stejnojmenné básně. Máchovo jméno se stalo <strong>symbolem moderní, evropsky orientované literatury</strong> – odlišné od vlastenecké produkce obrození.",
+      "Palacký byl historik (Dějiny národu českého) – s poetickým odkazem májovců nesouvisí.",
+      "Božena Němcová byla májovcům spíše současnicí a inspirací, ale almanach nesl jméno K. H. Máchy."
+    ]
+  },
+  {
+    q: "Která z následujících dvojic představitele a díla je NESPRÁVNĚ přiřazena?",
+    options: [
+      "Jan Neruda – Povídky malostranské",
+      "Karolina Světlá – Kříž u potoka",
+      "Jakub Arbes – Svatý Xaverius",
+      "Vítězslav Hálek – Vesnický román"
+    ],
+    correct: 3,
+    explanations: [
+      "Správně přiřazeno – Povídky malostranské jsou vrcholná Nerudova prozaická sbírka.",
+      "Správně přiřazeno – Kříž u potoka je Světlé románový klenot z ještědského cyklu.",
+      "Správně přiřazeno – Svatý Xaverius je Arbesovo nejznámější romaneto.",
+      "<strong>Správně (chyba je právě tady).</strong> <strong>Vesnický román</strong> napsala <strong>Karolina Světlá</strong>, ne Hálek. Hálek je autorem lyrických <em>Večerních písní</em> a sbírky <em>V přírodě</em>."
+    ]
+  },
+  {
+    q: "Jakub Arbes je tvůrcem specifického prozaického žánru. O jaký žánr se jedná?",
+    options: ["fejeton", "romaneto", "balada", "črta"],
+    correct: 1,
+    explanations: [
+      "Fejeton rozvíjel Jan Neruda – krátký novinový žánr s osobním stylem.",
+      "<strong>Správně.</strong> <strong>Romaneto</strong> je žánr, který Arbes vytvořil: kratší prozaický útvar s <strong>tajemným, zdánlivě nadpřirozeným jádrem, které je nakonec racionálně (vědecky) vysvětleno</strong>. Typické je Arbesovo dílo Svatý Xaverius nebo Newtonův mozek.",
+      "Balada je veršovaná forma (např. Erben) – s Arbesem nesouvisí.",
+      "Črta je drobný popisný prozaický útvar, ale není to specifický Arbesův vynález."
+    ]
+  },
+  {
+    q: "Jaký byl hlavní programový rozdíl mezi ruchovci a lumírovci?",
+    options: [
+      "ruchovci psali prózu, lumírovci pouze poezii",
+      "ruchovci prosazovali národní a slovanskou tematiku, lumírovci kosmopolitismus a světovost",
+      "ruchovci byli katolíci, lumírovci ateisté",
+      "ruchovci psali česky, lumírovci německy"
+    ],
+    correct: 1,
+    explanations: [
+      "Žánrové rozdělení nebylo podstatou sporu – obě skupiny psaly převážně poezii.",
+      "<strong>Správně.</strong> Spor byl <strong>programový</strong>: ruchovci (tzv. <em>škola národní</em>) prosazovali <strong>národní, slovanská a venkovská témata</strong>, lumírovci (<em>škola světová</em>) <strong>kosmopolitismus, evropskou inspiraci a estetickou dokonalost</strong>.",
+      "Náboženské rozdělení v tomto sporu roli nehrálo.",
+      "Obě skupiny psaly česky – obě navazovaly na obrozeneckou tradici, jen každá jinak."
+    ]
+  },
+  {
+    q: "Podle čeho získala svůj název generace ruchovců?",
+    options: [
+      "podle stejnojmenného časopisu",
+      "podle almanachu Ruch vydaného k položení základního kamene Národního divadla",
+      "podle manifestu Ruch vydaného Svatoplukem Čechem",
+      "podle literární kavárny Ruch v Praze"
+    ],
+    correct: 1,
+    explanations: [
+      "Časopis Ruch jako ústřední periodikum této generace neexistoval – šlo o almanach.",
+      "<strong>Správně.</strong> <strong>Almanach Ruch (1868)</strong> vyšel k příležitosti <strong>položení základního kamene Národního divadla</strong>. Národní divadlo bylo symbolem obrozenecké ideje, a proto se almanach i generace přirozeně profilovaly vlastenecky.",
+      "Jednorázový manifest Ruch neexistuje – skupina se definovala právě almanachem.",
+      "Literární kavárna Ruch není historickým faktem."
+    ]
+  },
+  {
+    q: "Který autor je hlavním představitelem ruchovců a autorem satirických próz o panu Broučkovi?",
+    options: ["Jaroslav Vrchlický", "Julius Zeyer", "Svatopluk Čech", "Karolina Světlá"],
+    correct: 2,
+    explanations: [
+      "Vrchlický je naopak hlavní představitel <strong>lumírovců</strong> – kosmopolitní, překladatelsky orientovaný autor.",
+      "Zeyer patří také k lumírovcům (exotická a historická tematika: Román o věrném přátelství Amise a Amila).",
+      "<strong>Správně.</strong> <strong>Svatopluk Čech</strong> je hlavní představitel ruchovců. Jeho <em>Výlety pana Broučka</em> (do Měsíce a do XV. století) jsou satirou na <strong>maloměšťáctví a lhostejnost k vyšším hodnotám</strong>. Napsal také Písně otroka.",
+      "Karolina Světlá je májovka, nikoli ruchovka – navíc psala spíše vesnické romány."
+    ]
+  },
+  {
+    q: "Jaroslav Vrchlický proslul mimo vlastní tvorbu také jako významný:",
+    options: ["skladatel", "malíř", "překladatel evropské poezie (Dante, Goethe, Hugo)", "politik a poslanec"],
+    correct: 2,
+    explanations: [
+      "Vrchlický skladatelem nebyl – v 19. století byl hlavním hudebním skladatelem např. Smetana či Dvořák.",
+      "Malířství Vrchlický neprovozoval.",
+      "<strong>Správně.</strong> Vrchlický byl obrovský <strong>překladatel evropské poezie</strong>: z italštiny (Dante – Božská komedie), francouzštiny (Hugo), němčiny (Goethe), angličtiny (Shakespeare). Svou překladatelskou činností <strong>zásadně rozšířil obzory české kultury</strong> – přesně v duchu lumírovského programu „světovosti\".",
+      "Vrchlický byl primárně básník a překladatel, nikoli aktivní politik."
+    ]
+  },
+  {
+    q: "Která sbírka patří J. V. Sládkovi?",
+    options: ["Okna v bouři", "Selské písně a České znělky", "Písně otroka", "Večerní písně"],
+    correct: 1,
+    explanations: [
+      "Okna v bouři je lyrická sbírka <strong>Jaroslava Vrchlického</strong>.",
+      "<strong>Správně.</strong> <strong>Selské písně a České znělky</strong> jsou typicky Sládkova sbírka – navzdory jeho formálnímu členství v lumírovcích (redigoval Lumíra) se tematicky věnoval <strong>venkovu, domovu a českému člověku</strong>, což ho spojuje s ruchovci. Proto jeho pozice ve sporu byla smířlivá.",
+      "Písně otroka napsal <strong>Svatopluk Čech</strong> – symbolický protest proti útlaku.",
+      "Večerní písně jsou sbírka <strong>Vítězslava Hálka</strong>, májovce."
+    ]
+  },
+  {
+    q: "Alois Jirásek je autorem:",
+    options: [
+      "dramatu Maryša",
+      "románu Santa Lucia",
+      "historických próz Psohlavci, F. L. Věk, Temno",
+      "venkovské prózy Kalibův zločin"
+    ],
+    correct: 2,
+    explanations: [
+      "<em>Maryša</em> je drama bratří Mrštíků (Aloise a Viléma), nikoli Jirásek.",
+      "<em>Santa Lucia</em> napsal <strong>Vilém Mrštík</strong> – příběh chudého moravského studenta v Praze s naturalistickými prvky.",
+      "<strong>Správně.</strong> <strong>Alois Jirásek</strong> je zakladatelská osobnost české <strong>historické prózy</strong>. Psohlavci (Chodové), F. L. Věk (obrození), Temno (doba pobělohorská) – jeho dílo formovalo národní historické vědomí po celé 20. století.",
+      "<em>Kalibův zločin</em> napsal <strong>Karel Václav Rais</strong> – venkovská próza s tématy výměnkářů a chamtivosti."
+    ]
+  },
+  {
+    q: "Které drama bratří Mrštíků je považováno za vrcholné dílo české naturalistické dramatiky a zachycuje tragický osud venkovské ženy donucené ke sňatku?",
+    options: ["Pohádka máje", "Maryša", "Kuře melancholik", "Santa Lucia"],
+    correct: 1,
+    explanations: [
+      "<em>Pohádka máje</em> je lyrický román Viléma Mrštíka – nikoli drama a nikoli tragédie donucené nevěsty.",
+      "<strong>Správně.</strong> <strong>Maryša</strong> (1894) od bratří <strong>Aloise a Viléma Mrštíků</strong> je vrcholné dílo českého naturalistického dramatu. Zachycuje tragédii venkovské dívky, která je <strong>donucena ke sňatku s bohatým vdovcem Vávrou</strong>, a nakonec ho otráví kávou. Ukazuje determinismus prostředí, rodinný tlak a moc peněz.",
+      "<em>Kuře melancholik</em> je povídka <strong>Karla Josefa Šlejhara</strong> – naturalistická, ale ne drama Mrštíků.",
+      "<em>Santa Lucia</em> je román Viléma Mrštíka, nikoli drama."
+    ]
+  }
+];
+
+let currentAnswers = new Array(questions.length).fill(null);
+
+function renderQuiz() {
+  const quiz = document.getElementById('quiz');
+  quiz.innerHTML = '';
+  questions.forEach((q, i) => {
+    const div = document.createElement('div');
+    div.className = 'question';
+    div.id = `q-${i}`;
+
+    const letters = ['A', 'B', 'C', 'D'];
+    const optionsHtml = q.options.map((opt, j) => `
+      <li>
+        <button class="option" data-q="${i}" data-opt="${j}" onclick="selectAnswer(${i}, ${j})">
+          <span class="option-letter">${letters[j]}</span>
+          <span>${opt}</span>
+        </button>
+      </li>
+    `).join('');
+
+    div.innerHTML = `
+      <div class="q-number">Otázka ${String(i+1).padStart(2, '0')} / 18</div>
+      <div class="q-text">${q.q}</div>
+      <ul class="options">${optionsHtml}</ul>
+      <div class="explanation" id="exp-${i}"></div>
+    `;
+    quiz.appendChild(div);
+  });
+}
+
+function selectAnswer(qIdx, optIdx) {
+  if (currentAnswers[qIdx] !== null) return; // already answered
+
+  currentAnswers[qIdx] = optIdx;
+  const q = questions[qIdx];
+  const isCorrect = optIdx === q.correct;
+
+  // Style options
+  const options = document.querySelectorAll(`[data-q="${qIdx}"]`);
+  options.forEach((btn, j) => {
+    btn.disabled = true;
+    if (j === q.correct) {
+      btn.classList.add('correct');
+    } else if (j === optIdx) {
+      btn.classList.add('incorrect');
+    } else {
+      btn.classList.add('dimmed');
+    }
+  });
+
+  // Show explanation
+  const exp = document.getElementById(`exp-${qIdx}`);
+  const verdictClass = isCorrect ? 'right' : 'wrong';
+  const verdictText = isCorrect ? '✓ Správně!' : '✗ Špatně.';
+
+  let html = `
+    <div class="explanation-title">Vysvětlení</div>
+    <div class="verdict ${verdictClass}">${verdictText}</div>
+  `;
+
+  // Show explanation for chosen answer
+  if (!isCorrect) {
+    html += `<p><strong>Tvoje odpověď:</strong> ${q.explanations[optIdx]}</p>`;
+    html += `<p><strong>Správná odpověď:</strong> ${q.explanations[q.correct]}</p>`;
+  } else {
+    html += `<p>${q.explanations[optIdx]}</p>`;
+  }
+
+  // Add mini-explanations for the other wrong options (bonus learning)
+  const otherWrong = q.options.map((_, j) => j).filter(j => j !== q.correct && j !== optIdx);
+  if (otherWrong.length > 0 && isCorrect) {
+    html += `<p style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);"><strong>Pro úplnost – proč nejsou správné ostatní:</strong></p>`;
+    otherWrong.forEach(j => {
+      html += `<p><strong>${['A','B','C','D'][j]})</strong> ${q.explanations[j]}</p>`;
+    });
+  } else if (otherWrong.length > 0) {
+    html += `<p style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);"><strong>Ostatní odpovědi:</strong></p>`;
+    otherWrong.forEach(j => {
+      html += `<p><strong>${['A','B','C','D'][j]})</strong> ${q.explanations[j]}</p>`;
+    });
+  }
+
+  exp.innerHTML = html;
+  exp.classList.add('show');
+
+  updateProgress();
+
+  // Check if finished
+  if (currentAnswers.every(a => a !== null)) {
+    setTimeout(showResult, 600);
+  }
+}
+
+function updateProgress() {
+  const answered = currentAnswers.filter(a => a !== null).length;
+  const correct = currentAnswers.filter((a, i) => a === questions[i].correct).length;
+  document.getElementById('progress-text').textContent = `${answered} / ${questions.length}`;
+  document.getElementById('score-text').textContent = `Správně: ${correct}`;
+  document.getElementById('progress-fill').style.width = `${(answered / questions.length) * 100}%`;
+}
+
+function showResult() {
+  const correct = currentAnswers.filter((a, i) => a === questions[i].correct).length;
+  const total = questions.length;
+  const percent = (correct / total) * 100;
+
+  document.getElementById('final-score').textContent = correct;
+
+  let label;
+  if (percent >= 90) label = "Výborně — úroveň 1 (maturitně solidní).";
+  else if (percent >= 75) label = "Velmi dobře — úroveň 2 (drobné mezery, ale dobrá znalost).";
+  else if (percent >= 60) label = "Dobře — úroveň 3 (základ máš, dopiluj autory a díla).";
+  else if (percent >= 45) label = "Dostatečně — úroveň 4 (potřeba zopakovat).";
+  else label = "Nedostatečně — úroveň 5 (zkus projít text a vrátit se ke kvízu).";
+
+  document.getElementById('final-label').textContent = label;
+  document.getElementById('result').classList.add('show');
+  document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+}
+
+function restart() {
+  currentAnswers = new Array(questions.length).fill(null);
+  document.getElementById('result').classList.remove('show');
+  renderQuiz();
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+renderQuiz();
+updateProgress();
+</script>
+</body>
+</html>
